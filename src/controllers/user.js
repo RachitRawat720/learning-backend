@@ -176,7 +176,7 @@ const logoutUser = asyncHandler(async (req,res) => {
     }
 
     return res.status(200)
-    .clearCookie("accessToken", options)
+    .clearCookie("accessToken", options)  // .clearCookie to delete a cookie
     .clearCookie("refreshToken", options)
     .json(
         new apiResponse(200, {}, "User logged out")
@@ -184,7 +184,7 @@ const logoutUser = asyncHandler(async (req,res) => {
 })
 
 const refreshAccessToken = asyncHandler(async(req, res) => {
-    const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
     if(!incomingRefreshToken){
         throw new apiError(401, "Unauthorized request")
     }
