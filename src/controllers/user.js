@@ -5,6 +5,7 @@ import { uploadOnCloudinary } from '../utils/cloudinary.js'
 import { apiResponse  } from '../utils/apiResponse.js'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
+import cookieParser from 'cookie-parser'
 
 // Method for generating Access & Refresh Token
 
@@ -162,8 +163,8 @@ const logoutUser = asyncHandler(async (req,res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1  // this removes the field from the doc
             }
         },
         {
@@ -185,7 +186,7 @@ const logoutUser = asyncHandler(async (req,res) => {
 })
 
 const refreshAccessToken = asyncHandler(async(req, res) => {
-    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
+    const incomingRefreshToken = req.cookies?.refreshToken || req.body?.refreshToken
     if(!incomingRefreshToken){
         throw new apiError(401, "Unauthorized request")
     }
@@ -212,7 +213,7 @@ const refreshAccessToken = asyncHandler(async(req, res) => {
         return res
         .status(200)
         .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
+        .cookie("refreshToken", newRefreshToken, options)
         .json(
             new apiResponse(
                 200,
